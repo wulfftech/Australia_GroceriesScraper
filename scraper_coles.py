@@ -1,4 +1,3 @@
-# Import the required libraries
 import csv
 import os
 import time
@@ -176,4 +175,5 @@ for category in categories:
             #wait the delay time before the next page
             time.sleep(delay)
 
+driver.quit
 print("Finished")
