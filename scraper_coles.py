@@ -13,7 +13,7 @@ config = configparser.ConfigParser()
 config.read('configuration.ini')
 
 folderpath = str(config.get('Global','SaveLocation'))
-delay = int(config.get('Global','DelaySeconds'))
+delay = int(config.get('Coles','DelaySeconds'))
 ccsuburb = str(config.get('Coles','ClickAndCollectSuburb'))
 
 # Create a new csv file for Coles
@@ -27,18 +27,20 @@ print("Saving to " + filepath)
 #write the header
 with open(filepath, "a", newline="") as f:
     writer = csv.writer(f)
-    writer.writerow(["Product Code", "Category", "Item Name", "Best Price", "Item Price", "Price Was", "Unit Price", "Special Text", "Complex Promo Text", "Link"])
+    writer.writerow(["Product Code", "Category", "Item Name", "Best Price", "Best Unit Price", "Item Price", "Unit Price", "Price Was", "Special Text", "Complex Promo Text", "Link"])
 f.close()
 
 # Configure options
 options = webdriver.EdgeOptions()
+options.add_argument("--app=https://www.coles.com.au")
+options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 # Start EdgeDriver
+print("Starting Coles...")
 driver = webdriver.Edge(options=options)
-url = "https://www.coles.com.au"
-print("Starting...")
 
 # Navigate to the Coles website
+url = "https://www.coles.com.au"
 driver.get(url + "/browse")
 time.sleep(delay)
 
@@ -102,6 +104,7 @@ for category in categories:
             
             # Find all products on the page
             products = soup.find_all("header", class_="product__header")
+            print("Products on this page: " + str(len(products)))
 
             # Iterate through each product and extract the product name, price and link
             for product in products:
@@ -116,7 +119,8 @@ for category in categories:
                 if name and itemprice:
                     name = name.text.strip()
                     itemprice = itemprice.text.strip()
-                    bestprice = itemprice
+                    best_price = itemprice
+                    best_unitprice = unitprice                    
                     link = url + productLink
 
                     #Unit Price and Was Price
@@ -141,29 +145,31 @@ for category in categories:
                         if(complexpromo.find("Pick any ") != -1 or complexpromo.find("Buy ") != -1):
                             complexpromo = complexpromo.replace("Pick any ", "")
                             complexpromo = complexpromo.replace("Buy ", "")
-                            complex_itemcount = int(complexpromo[0:1])
+                            complex_itemcount = int(complexpromo[0:complexpromo.find(" for")])
                             complex_cost = float(complexpromo[complexpromo.find("$")+1:len(complexpromo)])
-                            bestprice = "$" + str(round(complex_cost / complex_itemcount, 2))
+                            best_price = "$" + str(round(complex_cost / complex_itemcount, 2))
 
                     #write contents to file                       
                     with open(filepath, "a", newline="") as f:
                         writer = csv.writer(f)  
-                        writer.writerow([productcode, category.text, name, bestprice, itemprice, price_was, unitprice, specialtext, complexpromo, link])
+                        writer.writerow([productcode, category.text, name, best_price, best_unitprice, itemprice, unitprice, price_was, specialtext, complexpromo, link])
                 
-                    #reset variables
-                    name = None
-                    itemprice = None
-                    unitprice = None
-                    specialtext = None
-                    complexpromo = None
-                    productLink = None
-                    productcode = None
-                    price_was_pos = None
-                    specialtext = None
-                    complexpromo = None
-                    complex_itemcount = None
-                    complex_cost = None
-                    bestprice = None
+                #reset variables
+                name = None
+                itemprice = None
+                unitprice = None
+                specialtext = None
+                promotext = None
+                memberpromo = None
+                productLink = None
+                productcode = None
+                specialtext = None
+                complexpromo = None
+                complex_itemcount = None
+                complex_cost = None
+                best_price = None
+                best_unitprice = None
+                price_was = None
 
             # Get the link to the next page
             next_page_link = f"{category_link}?page={page + 1}"
