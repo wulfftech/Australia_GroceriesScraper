@@ -69,6 +69,14 @@ for category in categories:
         driver.get(category_link)
         time.sleep(delay)
 
+        #unselect all the stupid market items
+        driver.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
+        time.sleep(delay)
+        driver.find_element(By.XPATH, "//div[contains(string(), 'Woolworths ')]").click()
+        time.sleep(delay)
+        driver.find_element(By.XPATH, "//button[text()=' See results ']").click()
+        time.sleep(delay)
+
         # Parse page content
         page_contents = BeautifulSoup(driver.page_source, "html.parser")
 
