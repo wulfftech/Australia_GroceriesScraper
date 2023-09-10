@@ -44,24 +44,27 @@ url = "https://www.coles.com.au"
 driver.get(url + "/browse")
 time.sleep(delay)
 
-#Set Loacation via Menu Items
-driver.find_element(By.XPATH, "//button[@data-testid='delivery-selector-button']").click()
-time.sleep(delay)
+try:
+    #Set Loacation via Menu Items
+    driver.find_element(By.XPATH, "//button[@data-testid='delivery-selector-button']").click()
+    time.sleep(delay)
 
-driver.find_element(By.XPATH, "//a[@id='shopping-method-label-0']").click()
-time.sleep(delay)
+    driver.find_element(By.XPATH, "//a[@id='shopping-method-label-0']").click()
+    time.sleep(delay)
 
-driver.find_element(By.XPATH, "//input[@aria-label='Search address']").send_keys(ccsuburb)
-time.sleep(delay)
+    driver.find_element(By.XPATH, "//input[@aria-label='Search address']").send_keys(ccsuburb)
+    time.sleep(delay)
 
-driver.find_element(By.XPATH, "//div[@id='react-select-search-location-box-option-0']").click()
-time.sleep(delay)
+    driver.find_element(By.XPATH, "//div[@id='react-select-search-location-box-option-0']").click()
+    time.sleep(delay)
 
-driver.find_element(By.XPATH, "//input[@name='radio-group-name'][@value='0']").click()
-time.sleep(delay)
+    driver.find_element(By.XPATH, "//input[@name='radio-group-name'][@value='0']").click()
+    time.sleep(delay)
 
-driver.find_element(By.XPATH, "//button[@data-testid='set-location-button']").click()
-time.sleep(delay)
+    driver.find_element(By.XPATH, "//button[@data-testid='set-location-button']").click()
+    time.sleep(delay)
+except:
+    print("Setting C+C Location Failed")
 
 # Parse the page content
 page_contents = BeautifulSoup(driver.page_source, "html.parser")
