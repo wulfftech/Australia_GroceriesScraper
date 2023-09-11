@@ -76,7 +76,7 @@ for category in categories:
         #unselect all the stupid market items
         driver.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
         time.sleep(delay)
-        driver.find_element(By.XPATH, "//div[contains(string(), 'Woolworths ')]").click()
+        driver.find_element(By.XPATH, "//div[contains(string(), 'Woolworths (')]").click()
         time.sleep(delay)
         driver.find_element(By.XPATH, "//button[text()=' See results ']").click()
         time.sleep(delay)
