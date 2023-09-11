@@ -14,6 +14,7 @@ config.read('configuration.ini')
 
 folderpath = str(config.get('Global','SaveLocation'))
 delay = int(config.get('Woolworths','DelaySeconds'))
+category_ignore = str(config.get('Woolworths','IgnoredCategories'))
 
 # Create a new csv file for Woolworths
 filename = "Woolworths" + ".csv"
@@ -60,7 +61,10 @@ for category in categories:
 for category in categories:
     # Get the link to the categories page
     category_link = category.get("href")
-    if category_link != "/shop/browse/front-of-store" and category_link != "/shop/browse/liquor" and category_link != "/shop/browse/healthylife-pharmacy":
+    category_endpoint = category_link.replace("/shop/browse/", "")
+
+    #check if category is ignored in config
+    if (category_ignore.find(category_endpoint) == -1):
 
         category_link = url + category_link
         print("Current Category: " + category.text)

@@ -15,6 +15,8 @@ config.read('configuration.ini')
 folderpath = str(config.get('Global','SaveLocation'))
 delay = int(config.get('Coles','DelaySeconds'))
 ccsuburb = str(config.get('Coles','ClickAndCollectSuburb'))
+category_ignore = str(config.get('Coles','IgnoredCategories'))
+
 
 # Create a new csv file for Coles
 filename = "Coles" + ".csv"
@@ -79,7 +81,10 @@ for category in categories:
 for category in categories:
     # Get the link to the categories page
     category_link = category.get("href")
-    if category_link != "/browse/tobacco" and category_link != "/browse/liquor":
+    category_endpoint = category_link.replace("/browse/", "")
+
+    #check if category is ignored in config
+    if (category_ignore.find(category_endpoint) == -1):
 
         category_link = url + category_link
         print("Current Category: " + category.text)
@@ -118,6 +123,7 @@ for category in categories:
                 complexpromo = product.find("span", class_="product_promotion complex")
                 productLink = product.find("a", class_="product__link")["href"]
                 productcode = productLink.split("-")[-1]
+                price_was = None
                 
                 if name and itemprice:
                     name = name.text.strip()
