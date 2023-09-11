@@ -79,7 +79,7 @@ for category in categories:
     parentElement = driver.find_element(By.XPATH, "//wow-chip-container[@class='ng-star-inserted']")
     parentElement.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
     time.sleep(delay)
-    parentElement.find_element(By.XPATH, "//div[contains(string(), 'Woolworths (')]").click()
+    parentElement.find_element(By.XPATH, "//label[contains(string(), 'Woolworths (')]").click()
     time.sleep(delay)
     parentElement.find_element(By.XPATH, "//button[text()=' See results ']").click()
     time.sleep(delay)
