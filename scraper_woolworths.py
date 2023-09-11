@@ -6,7 +6,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
 
 #retreive configuration values
 config = configparser.ConfigParser()
@@ -56,145 +55,150 @@ categories = page_contents.find_all("a", class_="item ng-star-inserted")
 
 print("Categories:")
 for category in categories:
-    print(category.text)
+
+    #check if category is ignored in config
+    category_endpoint = category.get("href").replace("/shop/browse/", "")
+    if (category_ignore.find(category_endpoint) == -1):
+        print(category.text)
+    else:
+        print(category.text + " [IGNORED]")
+        categories.remove(category)
 
 for category in categories:
     # Get the link to the categories page
-    category_link = category.get("href")
-    category_endpoint = category_link.replace("/shop/browse/", "")
+    category_link = url + category.get("href")
+    category_name = category.text.strip()
+    print("Loading Category: " + category_name)
 
-    #check if category is ignored in config
-    if (category_ignore.find(category_endpoint) == -1):
+    # Follow the link to the category page
+    driver.get(category_link)
+    time.sleep(delay)
 
-        category_link = url + category_link
-        print("Current Category: " + category.text)
+    #unselect all the stupid market items
+    print("De-Selecting Everyday Market Items...")
+    parentElement = driver.find_element(By.XPATH, "//wow-chip-container[@class='ng-star-inserted']")
+    parentElement.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
+    time.sleep(delay)
+    parentElement.find_element(By.XPATH, "//div[contains(string(), 'Woolworths (')]").click()
+    time.sleep(delay)
+    parentElement.find_element(By.XPATH, "//button[text()=' See results ']").click()
+    time.sleep(delay)
 
-        # Follow the link to the category page
-        driver.get(category_link)
-        time.sleep(delay)
+    # Parse page content
+    page_contents = BeautifulSoup(driver.page_source, "html.parser")
 
-        #unselect all the stupid market items
-        driver.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
-        time.sleep(delay)
-        driver.find_element(By.XPATH, "//div[contains(string(), 'Woolworths (')]").click()
-        time.sleep(delay)
-        driver.find_element(By.XPATH, "//button[text()=' See results ']").click()
-        time.sleep(delay)
+    # Get the number of pages in this category
+    try:
+        pageselement = driver.find_element(By.XPATH, "//span[@class='page-count']")
+        total_pages = int(pageselement.get_attribute('innerText'))
+    except:
+        total_pages = 1
+    
+    for page in range(1, total_pages): #change back to 1
 
-        # Parse page content
+        # Parse the page content
         page_contents = BeautifulSoup(driver.page_source, "html.parser")
-
-        # Get the number of pages in this category
-        try:
-            pageselement = driver.find_element(By.XPATH, "//span[@class='page-count']")
-            total_pages = int(pageselement.get_attribute('innerText'))
-        except:
-            total_pages = 1
         
-        print("Total Pages in this Category: " + str(total_pages))
+        #get the element containing the products
+        productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
 
-        for page in range(1, total_pages): #change back to 1
+        # Find all products on the page
+        products = productsgrid.find_all("section", class_="product-tile-v2")
+        print(category_name + ": Page " + str(page) + " of " + str(total_pages) + " | Products on this page: " + str(len(products)))
 
-            # Parse the page content
-            page_contents = BeautifulSoup(driver.page_source, "html.parser")
-            
-            #get the element containing the products
-            productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
+        for product in products:
+            name = product.find("div", class_="product-tile-title")
+            itemprice = product.find("div", class_="primary")
+            unitprice = product.find("span", class_="price-per-cup")
+            specialtext = product.find("div", class_="ng-star-inserted")
+            promotext = product.find("div", class_="product-tile-promo-info ng-star-inserted")
+            price_was_struckout = product.find("span", class_="was-price ng-star-inserted")
 
-            # Find all products on the page
-            products = productsgrid.find_all("section", class_="product-tile-v2")
-            print("Products on this page: " + str(len(products)))
+            productLink = product.find("a", class_="product-title-link")["href"]
+            productcode = productLink.split("/")[-1]                
 
-            for product in products:
-                name = product.find("div", class_="product-tile-title")
-                itemprice = product.find("div", class_="primary")
-                unitprice = product.find("span", class_="price-per-cup")
-                specialtext = product.find("div", class_="ng-star-inserted")
-                promotext = product.find("div", class_="product-tile-promo-info ng-star-inserted")
-                price_was_struckout = product.find("span", class_="was-price ng-star-inserted")
+            if name and itemprice:
+                name = name.text.strip()
+                itemprice = itemprice.text.strip()
+                unitprice = unitprice.text.strip()
+                specialtext = specialtext.text.strip()
+                best_price = itemprice
+                best_unitprice = unitprice
+                link = url + productLink
 
-                productLink = product.find("a", class_="product-title-link")["href"]
-                productcode = productLink.split("/")[-1]                
+                #Was Price (this is different to promotext)
+                if(price_was_struckout):
+                    price_was = price_was_struckout.text.strip()
+                else:
+                    price_was = None
 
-                if name and itemprice:
-                    name = name.text.strip()
-                    itemprice = itemprice.text.strip()
-                    unitprice = unitprice.text.strip()
-                    specialtext = specialtext.text.strip()
-                    best_price = itemprice
-                    best_unitprice = unitprice
-                    link = url + productLink
+                if(promotext):
+                    promotext = promotext.text.strip()
 
-                    #Was Price (this is different to promotext)
-                    if(price_was_struckout):
-                        price_was = price_was_struckout.text.strip()
-                    else:
-                        price_was = None
+                    #"Range Was" or "Was"
+                    if(promotext.find("Was ") != -1 or promotext.find("Range was ") != -1):
+                        price_was = promotext[promotext.find("$"):promotext.find(" - ")]
+                    
 
-                    if(promotext):
-                        promotext = promotext.text.strip()
-
-                        #"Range Was" or "Was"
-                        if(promotext.find("Was ") != -1 or promotext.find("Range was ") != -1):
-                            price_was = promotext[promotext.find("$"):promotext.find(" - ")]
+                    #Member x for x promos
+                    if(promotext.find("MEMBER PRICE ") != -1 or promotext.find(" for ") != -1): 
+                        #member price
+                        if(promotext.find("MEMBER PRICE ") != -1):
+                                promotext = promotext.replace("MEMBER PRICE ", "")
+                                
+                        #generic 2fer pricing
+                        promo_itemcount = int(promotext[0:promotext.find(" for")])
+                        promo_price = float(promotext[promotext.find("$")+1:promotext.find(" - ")])
+                    
+                        #set Best price Update Best Unit Price from the memberpromo price
+                        best_price = "$" + str(round(promo_price / promo_itemcount, 2)) 
+                        #check if a unit price is presented for a 2-for special, they aren't always 
+                        if (promotext.find(" - ") != -1):
+                            best_unitprice = promotext[promotext.find(" - ")+3:len(promotext)]
                         
-
-                        #Member x for x promos
-                        if(promotext.find("MEMBER PRICE ") != -1 or promotext.find(" for ") != -1): 
-                            #member price
-                            if(promotext.find("MEMBER PRICE ") != -1):
-                                 promotext = promotext.replace("MEMBER PRICE ", "")
-                                 
-                            #generic 2fer pricing
-                            promo_itemcount = int(promotext[0:promotext.find(" for")])
-                            promo_price = float(promotext[promotext.find("$")+1:promotext.find(" - ")])
-                        
-                            #set Best price Update Best Unit Price from the memberpromo price
-                            best_price = "$" + str(round(promo_price / promo_itemcount, 2)) 
-                            #check if a unit price is presented for a 2-for special, they aren't always 
-                            if (promotext.find(" - ") != -1):
-                                best_unitprice = promotext[promotext.find(" - ")+3:len(promotext)]
-                            
-                        else:
-                            memberpromo = None
-                      
                     else:
-                        promotext = None
+                        memberpromo = None
+                    
+                else:
+                    promotext = None
 
-                    #write contents to file                       
-                    with open(filepath, "a", newline="") as f:
-                        writer = csv.writer(f)  
-                        writer.writerow([productcode, category.text, name, best_price, best_unitprice, itemprice, unitprice, price_was, specialtext, promotext, link])
+                #write contents to file                       
+                with open(filepath, "a", newline="") as f:
+                    writer = csv.writer(f)  
+                    writer.writerow([productcode, category.text, name, best_price, best_unitprice, itemprice, unitprice, price_was, specialtext, promotext, link])
 
-                #reset variables
-                name = None
-                itemprice = None
-                unitprice = None
-                specialtext = None
-                promotext = None
-                memberpromo = None
-                productLink = None
-                productcode = None
-                specialtext = None
-                complexpromo = None
-                complex_itemcount = None
-                complex_cost = None
-                best_price = None
-                best_unitprice = None
-                price_was = None
+            #reset variables
+            name = None
+            itemprice = None
+            unitprice = None
+            specialtext = None
+            promotext = None
+            memberpromo = None
+            productLink = None
+            productcode = None
+            specialtext = None
+            complexpromo = None
+            complex_itemcount = None
+            complex_cost = None
+            best_price = None
+            best_unitprice = None
+            price_was = None
 
 
-            # Get the link to the next page
-            next_page_link = f"{category_link}?pageNumber={page + 1}"
-            # Navigate to the next page
-            if(total_pages > 1 and page + 1 <= total_pages):
-                print("Getting Next Page (" + str(page + 1) + " of " + str(total_pages) + ")...")
-                driver.get(next_page_link)
-
-            time.sleep(delay)
-
+        # Get the link to the next page
+        next_page_link = f"{category_link}?pageNumber={page + 1}"
+        # Navigate to the next page
+        if(total_pages > 1 and page + 1 <= total_pages):
+            driver.get(next_page_link)
+        
         #wait the delay time before the next page
         time.sleep(delay)
+
+    #wait the delay time before the next Category
+    time.sleep(delay)
+
+else:
+    print("The category " + category.text + " has been ignored.")
 
 driver.quit
 print("Finished")
