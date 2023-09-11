@@ -71,18 +71,18 @@ for category in categories:
     print("Loading Category: " + category_name)
 
     # Follow the link to the category page
-    driver.get(category_link)
+    driver.get(category_link + "?pageNumber=1&sortBy=TraderRelevance&filter=SoldBy(Woolworths)")
     time.sleep(delay)
 
     #unselect all the stupid market items
-    print("De-Selecting Everyday Market Items...")
-    parentElement = driver.find_element(By.XPATH, "//wow-chip-container[@class='ng-star-inserted']")
-    parentElement.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
-    time.sleep(delay)
-    parentElement.find_element(By.XPATH, "//label[contains(string(), 'Woolworths (')]").click()
-    time.sleep(delay)
-    parentElement.find_element(By.XPATH, "//button[text()=' See results ']").click()
-    time.sleep(delay)
+    #print("De-Selecting Everyday Market Items...")
+    #parentElement = driver.find_element(By.XPATH, "//wow-chip-container[@class='ng-star-inserted']")
+    #parentElement.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
+    #time.sleep(delay)
+    #parentElement.find_element(By.XPATH, "//label[contains(string(), 'Woolworths (')]").click()
+    #time.sleep(delay)
+    #parentElement.find_element(By.XPATH, "//button[text()=' See results ']").click()
+    #time.sleep(delay)
 
     # Parse page content
     page_contents = BeautifulSoup(driver.page_source, "html.parser")
@@ -94,13 +94,19 @@ for category in categories:
     except:
         total_pages = 1
     
-    for page in range(1, total_pages): #change back to 1
+    for page in range(1, total_pages + 1):
 
         # Parse the page content
         page_contents = BeautifulSoup(driver.page_source, "html.parser")
         
         #get the element containing the products
+
         productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
+
+        if(productsgrid is None):
+            print("Waiting Longer....")
+            time.sleep(delay)
+            productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
 
         # Find all products on the page
         products = productsgrid.find_all("section", class_="product-tile-v2")
@@ -185,8 +191,8 @@ for category in categories:
             price_was = None
 
 
-        # Get the link to the next page
-        next_page_link = f"{category_link}?pageNumber={page + 1}"
+        # Get the link to the next page without the market BS
+        next_page_link = f"{category_link}?pageNumber={page + 1}" + "&sortBy=TraderRelevance&filter=SoldBy(Woolworths)"
         # Navigate to the next page
         if(total_pages > 1 and page + 1 <= total_pages):
             driver.get(next_page_link)
