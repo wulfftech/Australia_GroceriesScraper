@@ -99,7 +99,7 @@ for category in categories:
             page_contents = BeautifulSoup(driver.page_source, "html.parser")
             
             #get the element containing the products
-            productsgrid = page_contents.find("div", class_="ng-tns-c113-3 ng-trigger ng-trigger-staggerFadeInOut product-grid-v2")
+            productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
 
             # Find all products on the page
             products = productsgrid.find_all("section", class_="product-tile-v2")
@@ -133,7 +133,6 @@ for category in categories:
 
                     if(promotext):
                         promotext = promotext.text.strip()
-                        print("Promo Text: " + str(promotext))
 
                         #"Range Was" or "Was"
                         if(promotext.find("Was ") != -1 or promotext.find("Range was ") != -1):
