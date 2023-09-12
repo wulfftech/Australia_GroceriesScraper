@@ -3,7 +3,6 @@ import os
 import time
 import configparser
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 
@@ -183,17 +182,16 @@ for category in categories:
             best_unitprice = None
             price_was = None
 
-            # Get the link to the next page
-            next_page_link = f"{category_link}?page={page + 1}"
-            # Navigate to the next page
-            if(total_pages > 1 and page + 1 <= total_pages):
-                driver.get(next_page_link)
-            
-            #wait the delay time before the next page
-            time.sleep(delay)
-
-        #wait the delay time before the next Category
+        # Get the link to the next page
+        next_page_link = f"{category_link}?page={page + 1}"
+        # Navigate to the next page
+        if(total_pages > 1 and page + 1 <= total_pages):
+            driver.get(next_page_link)
+        #wait the delay time before the next page
         time.sleep(delay)
+
+    #wait the delay time before the next Category
+    time.sleep(delay)
 
 driver.quit
 print("Finished")

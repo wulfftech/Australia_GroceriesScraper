@@ -3,7 +3,6 @@ import os
 import time
 import configparser
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 
@@ -74,16 +73,6 @@ for category in categories:
     driver.get(category_link + "?pageNumber=1&sortBy=TraderRelevance&filter=SoldBy(Woolworths)")
     time.sleep(delay)
 
-    #unselect all the stupid market items
-    #print("De-Selecting Everyday Market Items...")
-    #parentElement = driver.find_element(By.XPATH, "//wow-chip-container[@class='ng-star-inserted']")
-    #parentElement.find_element(By.XPATH, "//div[text()=' Sold By ']").click()
-    #time.sleep(delay)
-    #parentElement.find_element(By.XPATH, "//label[contains(string(), 'Woolworths (')]").click()
-    #time.sleep(delay)
-    #parentElement.find_element(By.XPATH, "//button[text()=' See results ']").click()
-    #time.sleep(delay)
-
     # Parse page content
     page_contents = BeautifulSoup(driver.page_source, "html.parser")
 
@@ -100,12 +89,12 @@ for category in categories:
         page_contents = BeautifulSoup(driver.page_source, "html.parser")
         
         #get the element containing the products
-
-        productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
+        productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3")
 
         if(productsgrid is None):
             print("Waiting Longer....")
             time.sleep(delay)
+            page_contents = BeautifulSoup(driver.page_source, "html.parser")
             productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
 
         # Find all products on the page
