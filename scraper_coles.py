@@ -136,7 +136,7 @@ for category in categories:
                 #Unit Price and Was Price
                 if(unitprice):
                     unitprice = unitprice.text.strip()
-                    best_unitprice = unitprice.text.strip()
+                    best_unitprice = unitprice
                 
                     price_was_pos = unitprice.find("Was $")
                     if(price_was_pos != -1):
