@@ -104,8 +104,6 @@ for category in categories:
         total_pages = int(pages[-2].text.strip())
     except:
         total_pages = 1
-    
-    print("Total Pages in this Category: " + str(total_pages))
 
     for page in range(1, total_pages):
 
@@ -154,11 +152,14 @@ for category in categories:
                     complexpromo = complexpromo.text.strip() 
                     #Get ComplexPromo price
                     if(complexpromo.find("Pick any ") != -1 or complexpromo.find("Buy ") != -1):
-                        complexpromo = complexpromo.replace("Pick any ", "")
-                        complexpromo = complexpromo.replace("Buy ", "")
-                        complex_itemcount = int(complexpromo[0:complexpromo.find(" for")])
-                        complex_cost = float(complexpromo[complexpromo.find("$")+1:len(complexpromo)])
-                        best_price = "$" + str(round(complex_cost / complex_itemcount, 2))
+                        try:
+                            complexpromo = complexpromo.replace("Pick any ", "")
+                            complexpromo = complexpromo.replace("Buy ", "")
+                            complex_itemcount = int(complexpromo[0:complexpromo.find(" for")])
+                            complex_cost = float(complexpromo[complexpromo.find("$")+1:len(complexpromo)])
+                            best_price = "$" + str(round(complex_cost / complex_itemcount, 2))
+                        except:
+                            best_price = itemprice
 
                 #write contents to file                       
                 with open(filepath, "a", newline="") as f:
