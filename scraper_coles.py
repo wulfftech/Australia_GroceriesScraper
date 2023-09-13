@@ -130,18 +130,18 @@ for category in categories:
             if name and itemprice:
                 name = name.text.strip()
                 itemprice = itemprice.text.strip()
-                best_price = itemprice
-                best_unitprice = unitprice                    
+                best_price = itemprice                    
                 link = url + productLink
 
                 #Unit Price and Was Price
                 if(unitprice):
                     unitprice = unitprice.text.strip()
+                    best_unitprice = unitprice.text.strip()
                 
-                    price_was_pos = unitprice.find("| Was $")
+                    price_was_pos = unitprice.find("Was $")
                     if(price_was_pos != -1):
                         price_was = unitprice[price_was_pos + 6:len(unitprice)]
-                        unitprice = unitprice[0:unitprice.find("|")].strip()
+                        unitprice = unitprice[0:unitprice.find("Was")].strip()
                 
                 #Special Text
                 if(specialtext):
@@ -163,7 +163,7 @@ for category in categories:
                 #write contents to file                       
                 with open(filepath, "a", newline="") as f:
                     writer = csv.writer(f)  
-                    writer.writerow([productcode, category.text, name, best_price, best_unitprice, itemprice, unitprice, price_was, specialtext, complexpromo, link])
+                    writer.writerow([productcode, category_name, name, best_price, best_unitprice, itemprice, unitprice, price_was, specialtext, complexpromo, link])
             
             #reset variables
             name = None

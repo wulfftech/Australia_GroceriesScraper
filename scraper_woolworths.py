@@ -160,7 +160,7 @@ for category in categories:
                 #write contents to file                       
                 with open(filepath, "a", newline="") as f:
                     writer = csv.writer(f)  
-                    writer.writerow([productcode, category.text, name, best_price, best_unitprice, itemprice, unitprice, price_was, specialtext, promotext, link])
+                    writer.writerow([productcode, category_name, name, best_price, best_unitprice, itemprice, unitprice, price_was, specialtext, promotext, link])
 
             #reset variables
             name = None
