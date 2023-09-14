@@ -137,6 +137,7 @@ for category in categories:
                     best_unitprice = unitprice
                 
                     price_was_pos = unitprice.find("Was $")
+                    
                     if(price_was_pos != -1):
                         price_was = unitprice[price_was_pos + 6:len(unitprice)]
                         unitprice = unitprice[0:unitprice.find("Was")].strip()
