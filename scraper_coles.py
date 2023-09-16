@@ -140,7 +140,7 @@ for category in categories:
 
                     if(price_was_pos != -1):
                         price_was = unitprice[price_was_pos + 6:len(unitprice)]
-                        unitprice = unitprice[0:unitprice.find("Was")].strip()
+                        unitprice = unitprice[0:unitprice.find("| was")].strip()
                 
                 #Special Text
                 if(specialtext):
