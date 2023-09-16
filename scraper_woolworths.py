@@ -110,7 +110,7 @@ for category in categories:
             price_was_struckout = product.find("span", class_="was-price ng-star-inserted")
 
             productLink = product.find("a", class_="product-title-link")["href"]
-            productcode = productLink.split("/")[-1]                
+            productcode = productLink.split("/")[-2]                
 
             if name and itemprice:
                 name = name.text.strip()
