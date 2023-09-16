@@ -143,7 +143,7 @@ for category in categories:
                         if (unitprice[0:1] == "|"):
                             unitprice = None
                         else:
-                            unitprice = unitprice[0:unitprice.find("| was")].strip()
+                            unitprice = unitprice[0:unitprice.find("| was")-1].strip()
                 
                 #Special Text
                 if(specialtext):
