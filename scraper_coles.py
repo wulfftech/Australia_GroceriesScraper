@@ -77,6 +77,8 @@ for category in categories:
 
     #check if category is ignored in config
     category_endpoint = category.get("href").replace("/browse/", "")
+    category_endpoint = category_endpoint.replace("/", "")
+    
     if (category_ignore.find(category_endpoint) == -1):
         print(category.text)
     else:
