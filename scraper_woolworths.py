@@ -89,7 +89,7 @@ for category in categories:
         page_contents = BeautifulSoup(driver.page_source, "html.parser")
         
         #get the element containing the products
-        productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3")
+        productsgrid = page_contents.find("shared-grid", class_="grid-v2")
 
         if(productsgrid is None):
             print("Waiting Longer....")
