@@ -1,3 +1,4 @@
+import sys
 import csv
 import os
 import time
@@ -8,25 +9,40 @@ from bs4 import BeautifulSoup
 
 #retreive configuration values
 config = configparser.ConfigParser()
-config.read('configuration.ini')
+configFile = 'configuration.ini'
+config.read(configFile)
 
 folderpath = str(config.get('Global','SaveLocation'))
 delay = int(config.get('Woolworths','DelaySeconds'))
 category_ignore = str(config.get('Woolworths','IgnoredCategories'))
 
+if(config.get('Woolworths','Resume_Active') == "TRUE"):
+    resume_active = True
+else:
+    resume_active = False
+
+resume_category = config.get('Woolworths','Resume_Category')
+resume_page = int(config.get('Woolworths','Resume_Page'))
+
 # Create a new csv file for Woolworths
 filename = "Woolworths" + ".csv"
 filepath = os.path.join(folderpath,filename)
-if os.path.exists(filepath):
-    os.remove(filepath)
+
+#print resume details, otherwise delete the file to start again
+if(resume_active == True):
+    print("Resuming at page " + str(resume_page) + " of " + str(resume_category))
+else:
+    print("Resume data not found, starting anew...")
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    
+    #write the header to the new file
+    with open(filepath, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Product Code", "Category", "Item Name", "Best Price", "Best Unit Price", "Item Price", "Unit Price", "Price Was", "Special Text", "Complex Promo Text", "Link"])
+    f.close()
 
 print("Saving to " + filepath)
-
-#write the header
-with open(filepath, "a", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(["Product Code", "Category", "Item Name", "Best Price", "Best Unit Price", "Item Price", "Unit Price", "Price Was", "Special Text", "Complex Promo Text", "Link"])
-f.close()
 
 # Configure options
 options = webdriver.EdgeOptions()
@@ -52,22 +68,44 @@ page_contents = BeautifulSoup(driver.page_source, "html.parser")
 # Find all product categories on the page
 categories = page_contents.find_all("a", class_="item ng-star-inserted")
 
-print("Categories:")
-for category in categories:
+#remove categories earlier than the resume point
+if(resume_active == True):
+    found_resume_point = False
 
-    #check if category is ignored in config
+    for category in reversed(categories):
+        category_name = category.text.strip()
+
+        if(found_resume_point == True):
+            categories.remove(category)
+        else:
+            if(resume_category == category_name):
+                found_resume_point = True
+
+#remove categories ignored in the config file
+for category in reversed(categories):
     category_endpoint = category.get("href").replace("/shop/browse/", "")
-    if (category_ignore.find(category_endpoint) == -1):
-        print(category.text)
-    else:
-        print(category.text + " [IGNORED]")
+    if (category_ignore.find(category_endpoint) != -1):
         categories.remove(category)
+
+#show the user the categories to scrape
+print("Categories to Scrape:")
+for category in categories:
+    print(category.text)
 
 for category in categories:
     # Get the link to the categories page
     category_link = url + category.get("href")
     category_name = category.text.strip()
     print("Loading Category: " + category_name)
+
+    #save resume data
+    config.set('Woolworths', 'Resume_Category', category_name)
+    try:
+        with open(configFile, 'w') as cfgFile:
+            config.write(cfgFile)
+        cfgFile.close
+    except:
+        print("Failed to write Config this time...")
 
     # Follow the link to the category page
     driver.get(category_link + "?pageNumber=1&sortBy=TraderRelevance&filter=SoldBy(Woolworths)")
@@ -83,7 +121,21 @@ for category in categories:
     except:
         total_pages = 1
     
-    for page in range(1, total_pages + 1):
+    if(resume_active == True):
+        first_page = resume_page
+    else:
+        first_page = 1
+
+    for page in range(first_page, total_pages + 1):
+
+        #set the resume point
+        config.set('Woolworths', 'Resume_Page', str(page))
+        try:
+            with open(configFile, 'w') as cfgFile:
+                config.write(cfgFile)
+            cfgFile.close
+        except:
+            print("Failed to write Config this time...")
 
         # Parse the page content
         page_contents = BeautifulSoup(driver.page_source, "html.parser")
@@ -196,4 +248,15 @@ else:
     print("The category " + category.text + " has been ignored.")
 
 driver.quit
+
+f.close()
+
+config.set('Woolworths', 'Resume_Active', "FALSE")
+config.set('Woolworths', 'Resume_Category', "")
+config.set('Woolworths', 'Resume_Page', "")
+
+with open(configFile, 'w') as cfgFile:
+    config.write(cfgFile)
+cfgFile.close
+
 print("Finished")

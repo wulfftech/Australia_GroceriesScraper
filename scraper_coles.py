@@ -140,6 +140,7 @@ for category in categories:
 
                     if(price_was_pos != -1):
                         price_was = unitprice[price_was_pos -1 + 6:len(unitprice)]
+                        unitprice = unitprice[0:price_was_pos].strip()
                         if (unitprice[0:1] == "|"):
                             unitprice = None
                         else:
