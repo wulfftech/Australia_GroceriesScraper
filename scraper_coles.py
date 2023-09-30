@@ -72,18 +72,17 @@ page_contents = BeautifulSoup(driver.page_source, "html.parser")
 # Find all product categories on the page
 categories = page_contents.find_all("a", class_="coles-targeting-ShopCategoriesShopCategoryStyledCategoryContainer")
 
-print("Categories:")
-for category in categories:
-
-    #check if category is ignored in config
+#remove categories ignored in the config file
+for category in reversed(categories):
     category_endpoint = category.get("href").replace("/browse/", "")
     category_endpoint = category_endpoint.replace("/", "")
-    
-    if (category_ignore.find(category_endpoint) == -1):
-        print(category.text)
-    else:
-        print(category.text + " [IGNORED]")
+    if (category_ignore.find(category_endpoint) != -1):
         categories.remove(category)
+
+#show the user the categories to scrape
+print("Categories to Scrape:")
+for category in categories:
+    print(category.text)
 
 # Iterate through each category and follow the link to get the products
 for category in categories:

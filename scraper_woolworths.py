@@ -252,8 +252,8 @@ driver.quit
 f.close()
 
 config.set('Woolworths', 'Resume_Active', "FALSE")
-config.set('Woolworths', 'Resume_Category', "")
-config.set('Woolworths', 'Resume_Page', "")
+config.set('Woolworths', 'Resume_Category', "null")
+config.set('Woolworths', 'Resume_Page', "0")
 
 with open(configFile, 'w') as cfgFile:
     config.write(cfgFile)
