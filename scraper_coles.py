@@ -126,6 +126,10 @@ for category in categories:
             productcode = productLink.split("-")[-1]
             price_was = None
             
+######################
+            #if(productcode == "LOCKED\""):
+            #    breakpoint
+
             if name and itemprice:
                 name = name.text.strip()
                 itemprice = itemprice.text.strip()

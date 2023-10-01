@@ -164,6 +164,10 @@ for category in categories:
             productLink = product.find("a", class_="product-title-link")["href"]
             productcode = productLink.split("/")[-2]                
 
+            #solve problem where some links dont have the item description
+            if(productcode == "productdetails"):
+                productcode = productLink.split("/")[-1]
+
             if name and itemprice:
                 name = name.text.strip()
                 itemprice = itemprice.text.strip()
