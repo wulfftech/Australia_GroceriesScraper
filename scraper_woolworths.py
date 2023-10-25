@@ -190,23 +190,26 @@ for category in categories:
                     if(promotext.find("Was ") != -1 or promotext.find("Range was ") != -1):
                         price_was = promotext[promotext.find("$"):promotext.find(" - ")]
                     
-
                     #Member x for x promos
-                    if(promotext.find("MEMBER PRICE ") != -1 or promotext.find(" for ") != -1): 
+                    if(promotext.find("Member Price") != -1 or promotext.find(" for ") != -1): 
                         #member price
-                        if(promotext.find("MEMBER PRICE ") != -1):
-                                promotext = promotext.replace("MEMBER PRICE ", "")
-                                
-                        #generic 2fer pricing
-                        promo_itemcount = int(promotext[0:promotext.find(" for")])
-                        promo_price = float(promotext[promotext.find("$")+1:promotext.find(" - ")])
-                    
-                        #set Best price Update Best Unit Price from the memberpromo price
-                        best_price = "$" + str(round(promo_price / promo_itemcount, 2)) 
-                        #check if a unit price is presented for a 2-for special, they aren't always 
-                        if (promotext.find(" - ") != -1):
-                            best_unitprice = promotext[promotext.find(" - ")+3:len(promotext)]
+                        if(promotext.find("Member Price") != -1):
+                                promotext = promotext.replace("Member Price", "").strip()
                         
+                        try:
+                            #generic 2fer pricing
+                            promo_itemcount = int(promotext[0:promotext.find(" for")])
+                            promo_price = float(promotext[promotext.find("$")+1:promotext.find(" - ")])
+                        
+                            #set Best price Update Best Unit Price from the memberpromo price
+                            best_price = "$" + str(round(promo_price / promo_itemcount, 2)) 
+                            #check if a unit price is presented for a 2-for special, they aren't always 
+                            if (promotext.find(" - ") != -1):
+                                best_unitprice = promotext[promotext.find(" - ")+3:len(promotext)]
+                        except:
+                            print("Member Price Error for " + str(promotext))
+                            best_price = itemprice
+                            best_unitprice = unitprice
                     else:
                         memberpromo = None
                     
