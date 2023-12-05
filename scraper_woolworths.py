@@ -147,44 +147,88 @@ for category in categories:
             print("Waiting Longer....")
             time.sleep(delay)
             page_contents = BeautifulSoup(driver.page_source, "html.parser")
-            productsgrid = page_contents.find("shared-grid", class_="ng-tns-c112-3 grid-v2 ng-star-inserted")
+            productsgrid = page_contents.find("shared-grid", class_="grid-v2")
 
-        # Find all products on the page
-        products = productsgrid.find_all("section", class_="product-tile-v2")
-        print(category_name + ": Page " + str(page) + " of " + str(total_pages) + " | Products on this page: " + str(len(products)))
 
-        for product in products:
-            name = product.find("div", class_="product-tile-title")
-            itemprice = product.find("div", class_="primary")
-            unitprice = product.find("span", class_="price-per-cup")
-            specialtext = product.find("div", class_="ng-star-inserted")
-            promotext = product.find("div", class_="product-tile-promo-info ng-star-inserted")
-            price_was_struckout = product.find("span", class_="was-price ng-star-inserted")
+        products2 = driver.find_elements(By.XPATH, "//wc-product-tile[@class='ng-star-inserted']")
+        productsCount2 = len(products2)
 
-            productLink = product.find("a", class_="product-title-link")["href"]
-            productcode = productLink.split("/")[-2]                
+        for productCounter in range(productsCount2):
+            
+            #product name
+            scriptContents = "return document.getElementsByClassName('grid-v2')[0].getElementsByTagName('wc-product-tile')[" + str(productCounter) + "].shadowRoot.children[0].getElementsByClassName('title')[0].innerText"
+            name = driver.execute_script(scriptContents)
+
+            #price
+            try:
+                scriptContents = "return document.getElementsByClassName('grid-v2')[0].getElementsByTagName('wc-product-tile')[" + str(productCounter) + "].shadowRoot.children[0].getElementsByClassName('primary')[0].innerText"
+                itemprice = driver.execute_script(scriptContents)
+            except:
+                itemprice = ""
+
+            #unit price
+            try:
+                scriptContents = "return document.getElementsByClassName('grid-v2')[0].getElementsByTagName('wc-product-tile')[" + str(productCounter) + "].shadowRoot.children[0].getElementsByClassName('price-per-cup')[0].innerText"
+                unitprice = driver.execute_script(scriptContents)      
+            except:
+                unitprice = ""                      
+
+            #specialtext
+            try:
+                scriptContents = "return document.getElementsByClassName('grid-v2')[0].getElementsByTagName('wc-product-tile')[" + str(productCounter) + "].shadowRoot.children[0].getElementsByClassName('product-tile-label')[0].innerText"
+                specialtext = driver.execute_script(scriptContents)   
+            except:
+                specialtext = ""
+
+            #promotext
+            try:
+                scriptContents = "return document.getElementsByClassName('grid-v2')[0].getElementsByTagName('wc-product-tile')[" + str(productCounter) + "].shadowRoot.children[0].getElementsByClassName('product-tile-promo-info')[0].innerText"
+                promotext = driver.execute_script(scriptContents)   
+            except:
+                promotext = ""
+
+            #price_was_struckout
+            try:
+                scriptContents = "return document.getElementsByClassName('grid-v2')[0].getElementsByTagName('wc-product-tile')[" + str(productCounter) + "].shadowRoot.children[0].getElementsByClassName('was-price ')[0].innerText"
+                price_was_struckout = driver.execute_script(scriptContents)   
+            except:
+                price_was_struckout = ""        
+
+            #productLink
+            try:
+                scriptContents = "return document.getElementsByClassName('grid-v2')[0].getElementsByTagName('wc-product-tile')[" + str(productCounter) + "].shadowRoot.children[0].getElementsByTagName('a')[0].href"
+                productLink = driver.execute_script(scriptContents)   
+            except:
+                productLink = ""     
+
+            
+            productcode = productLink.split("/")[-2]                         
+
+            print(name + " / " + itemprice + " / " + unitprice + " / " + specialtext + " / " + promotext + " / " + price_was_struckout + " / " + productcode)
+
+              
 
             #solve problem where some links dont have the item description
             if(productcode == "productdetails"):
                 productcode = productLink.split("/")[-1]
 
             if name and itemprice:
-                name = name.text.strip()
-                itemprice = itemprice.text.strip()
-                unitprice = unitprice.text.strip()
-                specialtext = specialtext.text.strip()
+                name = name.strip()
+                itemprice = itemprice.strip()
+                unitprice = unitprice.strip()
+                specialtext = specialtext.strip()
                 best_price = itemprice
                 best_unitprice = unitprice
                 link = url + productLink
 
                 #Was Price (this is different to promotext)
                 if(price_was_struckout):
-                    price_was = price_was_struckout.text.strip()
+                    price_was = price_was_struckout.strip()
                 else:
                     price_was = None
 
                 if(promotext):
-                    promotext = promotext.text.strip()
+                    promotext = promotext.strip()
 
                     #"Range Was" or "Was"
                     if(promotext.find("Was ") != -1 or promotext.find("Range was ") != -1):
