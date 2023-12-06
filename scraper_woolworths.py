@@ -204,10 +204,8 @@ for category in categories:
             
             productcode = productLink.split("/")[-2]                         
 
-            print(name + " / " + itemprice + " / " + unitprice + " / " + specialtext + " / " + promotext + " / " + price_was_struckout + " / " + productcode)
-
+            #print(name + " / " + itemprice + " / " + unitprice + " / " + specialtext + " / " + promotext + " / " + price_was_struckout + " / " + productcode)
               
-
             #solve problem where some links dont have the item description
             if(productcode == "productdetails"):
                 productcode = productLink.split("/")[-1]
@@ -219,7 +217,7 @@ for category in categories:
                 specialtext = specialtext.strip()
                 best_price = itemprice
                 best_unitprice = unitprice
-                link = url + productLink
+                link = productLink
 
                 #Was Price (this is different to promotext)
                 if(price_was_struckout):
