@@ -153,6 +153,8 @@ for category in categories:
         products2 = driver.find_elements(By.XPATH, "//wc-product-tile[@class='ng-star-inserted']")
         productsCount2 = len(products2)
 
+        print(category_name + ": Page " + str(page) + " of " + str(total_pages) + " | Products on this page: " + str(productsCount2))
+
         for productCounter in range(productsCount2):
             
             #product name
