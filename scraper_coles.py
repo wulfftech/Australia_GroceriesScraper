@@ -86,6 +86,10 @@ for category in categories:
 
 # Iterate through each category and follow the link to get the products
 for category in categories:
+
+    #start browser
+    driver = webdriver.Edge(options=options)
+        
     # Get the link to the categories page
     category_link = url + category.get("href")
     category_name = category.text.strip()
@@ -209,6 +213,8 @@ for category in categories:
 
     #wait the delay time before the next Category
     time.sleep(delay)
+    #close the browser
+    driver.close()    
 
 driver.quit
 print("Finished")
