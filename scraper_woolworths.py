@@ -293,6 +293,13 @@ for category in categories:
 
         # Get the link to the next page without the market BS
         next_page_link = f"{category_link}?pageNumber={page + 1}" + "&sortBy=TraderRelevance&filter=SoldBy(Woolworths)"
+        
+        #restart browser every 50 pages
+        if(page % 50 == 0):
+            print("Restaring Browser...")
+            driver.close()
+            driver = webdriver.Edge(options=options)
+        
         # Navigate to the next page
         if(total_pages > 1 and page + 1 <= total_pages):
             driver.get(next_page_link)
