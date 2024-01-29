@@ -92,6 +92,8 @@ print("Categories to Scrape:")
 for category in categories:
     print(category.text)
 
+driver.quit
+
 for category in categories:
 
     #start browser
