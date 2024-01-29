@@ -93,6 +93,10 @@ for category in categories:
     print(category.text)
 
 for category in categories:
+
+    #start browser
+    driver = webdriver.Edge(options=options)
+
     # Get the link to the categories page
     category_link = url + category.get("href")
     category_name = category.text.strip()
@@ -294,6 +298,8 @@ for category in categories:
 
     #wait the delay time before the next Category
     time.sleep(delay)
+    #kill the browser
+    driver.quit
 
 else:
     print("The category " + category.text + " has been ignored.")
