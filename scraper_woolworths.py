@@ -92,7 +92,9 @@ print("Categories to Scrape:")
 for category in categories:
     print(category.text)
 
-driver.quit
+time.sleep(delay)
+#close the browser
+driver.close()
 
 for category in categories:
 
@@ -300,13 +302,13 @@ for category in categories:
 
     #wait the delay time before the next Category
     time.sleep(delay)
-    #kill the browser
-    driver.quit
+    #close the browser
+    driver.close()
 
 else:
     print("The category " + category.text + " has been ignored.")
 
-driver.quit
+driver.quit()
 
 f.close()
 
